@@ -31,9 +31,8 @@ import re
 from typing import Callable
 
 def generator_numbers(text: str):
-
     # Вираз для пошуку дійсних чисел
-    pattern = r'\b\d+\.\d+\b'
+    pattern = r'(?<=\s)\d+\.\d+'
     # Знаходимо всі збіги
     for match in re.finditer(pattern, text):
         # Перетворюємо знайдені рядки у числа
@@ -49,7 +48,9 @@ def sum_profit(text: str, func: Callable):
 
 text = "Загальний дохід працівника складається з декількох частин: 5045.48 як основний дохід, доповнений додатковими надходженнями 64.78 і 278.25 доларів."
 total_income = sum_profit(text, generator_numbers)
+total_income = round(total_income, 2)
 print(f"Загальний дохід: {total_income}")
+
 
 
 

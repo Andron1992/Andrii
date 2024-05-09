@@ -1,50 +1,51 @@
-
 def input_error(func):
     def inner(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except ValueError:
-            return "Invalid input value. Please provide correct arguments."
         except KeyError:
-            return "Enter user name."
+            return "Contact not found."
+        except ValueError:
+            return "Invalid number of arguments. Please provide correct arguments."
         except IndexError:
-            return "Invalid input value. Please provide correct arguments."
-        except Exception as e:
-            return str(e)
+            return "Missing arguments. Please provide all required arguments."
+
     return inner
 
-def parse_input(user_input):
-    if not user_input:
-        return None, []
-    cmd, *args = user_input.split()
-    cmd = cmd.strip().lower()
-    return cmd, args
-
 @input_error
-def add_contact(contacts, name, phone_number):
-    if name in contacts:
-        return "Contact already exists."
-    contacts[name] = phone_number
+def add_contact(args, contacts):
+    name, phone = args
+    contacts[name] = phone
     return "Contact added."
-@input_error
-def change_contact(contacts, name, new_phone_number):
-    if name not in contacts:
-        return "Contact not found."
-    contacts[name] = new_phone_number
-    return "Contact updated."
 
 @input_error
-def show_phone(contacts, name):
-    if name not in contacts:
+def change_contact(args, contacts):
+    name, new_phone = args
+    if name in contacts:
+        contacts[name] = new_phone
+        return "Contact updated."
+    else:
         return "Contact not found."
-    return contacts[name]
+
+@input_error
+def show_phone(args, contacts):
+    name = args[0]
+    if name in contacts:
+        return contacts[name]
+    else:
+        return "Contact not found."
 
 @input_error
 def show_all(contacts):
-    if not contacts:
+    if contacts:
+        return "\n".join([f"{name}: {phone}" for name, phone in contacts.items()])
+    else:
         return "No contacts found."
-    all_contacts = "\n".join([f"{name}: {contacts[name]}" for name in contacts])
-    return all_contacts
+
+def parse_input(user_input):
+    parts = user_input.strip().split()
+    command = parts[0].lower()
+    args = parts[1:]
+    return command, args
 
 def main():
     contacts = {}
@@ -53,35 +54,28 @@ def main():
         user_input = input("Enter a command: ")
         command, args = parse_input(user_input)
 
-
         if command in ["close", "exit"]:
             print("Good bye!")
             break
+
         elif command == "hello":
             print("How can I help you?")
+
         elif command == "add":
-            if len(args) != 2:
-                print("Invalid number of arguments. Usage: add [ім'я] [номер телефону]")
-                continue
-            name, phone_number = args
-            print(add_contact(contacts, name, phone_number))
+            print(add_contact(args, contacts))
+
         elif command == "change":
-            if len(args) != 2:
-                print("Invalid number of arguments. Usage: change [ім'я] [новий номер телефону]")
-                continue
-            name, new_phone_number = args
-            print(change_contact(contacts, name, new_phone_number))
+            print(change_contact(args, contacts))
+
         elif command == "phone":
-            if len(args) != 1:
-                print("Invalid number of arguments. Usage: phone [ім'я]")
-                continue
-            name = args[0]
-            print(show_phone(contacts, name))
+            print(show_phone(args, contacts))
+
         elif command == "all":
             print(show_all(contacts))
+
         else:
             print("Invalid command.")
 
 if __name__ == "__main__":
-        main()
+    main()
 
